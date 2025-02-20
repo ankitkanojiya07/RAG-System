@@ -1,116 +1,96 @@
-# Retrieval Augmented Generation (RAG) System
+# Customer Search API
 
-## Overview
-This project implements a Retrieval Augmented Generation (RAG) system using Weaviate as a vector database. It allows document ingestion, embedding generation, indexing, and efficient retrieval of relevant information from uploaded documents.
+This is a Flask-based API that integrates with Weaviate for customer data retrieval, filtering, and analysis. It provides endpoints to search, filter, analyze, and retrieve customer data.
 
 ## Features
-- Supports document ingestion in **PDF, DOCX, JSON, and TXT** formats.
-- Generates embeddings using a model like OpenAI’s text-embedding or Hugging Face models.
-- Stores embeddings in **Weaviate** for efficient retrieval.
-- Provides a **REST API** to:
-  - Upload and update documents.
-  - Query documents for relevant snippets.
-  - Retrieve associated metadata.
-- Optimized for performance using:
-  - **Document chunking** for large documents.
-  - **Precomputed embeddings** to reduce query latency.
-- **Deployment-ready** with cloud hosting.
-- **(Bonus)** JSON data support for structured queries like min/max and aggregations.
+- **Search Customers**: Retrieve customers based on a query.
+- **Filter Customers**: Filter customers based on membership, age, total spent, and preferred category.
+- **Analyze Customers**: Use a question-answering system to generate insights from customer data.
+- **Retrieve Customer Details**: Fetch details of a specific customer by their ID.
 
-## Architecture
-1. **Document Ingestion & Embedding Generation**
-   - Upload document via API.
-   - Convert document text to embeddings.
-   - Store embeddings in Weaviate.
-2. **Query Processing**
-   - Accept user queries via API.
-   - Retrieve relevant document snippets from Weaviate.
-   - Return the best-matching result with metadata.
-3. **Performance Optimizations**
-   - Document chunking for better retrieval.
-   - Precomputed embeddings for low-latency responses.
+## Setup Instructions
+### Prerequisites
+- Python 3.7+
+- `pip` package manager
+- Weaviate account and API key
+
+### Installation
+1. Clone this repository:
+   ```sh
+   git clone <repository-url>
+   cd <repository-folder>
+   ```
+2. Create a virtual environment and activate it:
+   ```sh
+   python -m venv venv
+   source venv/bin/activate  # On macOS/Linux
+   venv\Scripts\activate  # On Windows
+   ```
+3. Install the dependencies:
+   ```sh
+   pip install flask weaviate-client
+   ```
+
+## Environment Variables
+Update the `get_weaviate_client()` function with your Weaviate API key and cluster URL.
 
 ## API Endpoints
-### 1. Document Ingestion
-#### Upload Document
-```
-POST /api/upload
-```
-**Request:**
-```json
-{
-  "file": "<uploaded_file>",
-  "filename": "document.pdf"
-}
-```
-**Response:**
-```json
-{
-  "document_id": "12345",
-  "message": "Document uploaded successfully"
-}
+### 1. Search Customers
+**Endpoint:** `GET /api/customers/search`
+**Query Parameters:**
+- `query`: Search query
+- `limit`: Number of results to return (default: 10)
+
+**Example Request:**
+```sh
+curl "http://127.0.0.1:5000/api/customers/search?query=John&limit=5"
 ```
 
-#### Update Document (Re-upload)
-```
-POST /api/update
-```
-Same request structure as `/api/upload`.
+### 2. Filter Customers
+**Endpoint:** `GET /api/customers/filter`
+**Query Parameters:**
+- `membership`: Membership type
+- `min_age`: Minimum age
+- `max_age`: Maximum age
+- `min_spent`: Minimum total spent
+- `category`: Preferred category
+- `limit`: Number of results to return (default: 10)
 
-### 2. Query Endpoint
-```
-GET /api/query?document_id=12345&query=What is AI?
-```
-**Response:**
-```json
-{
-  "snippet": "AI stands for Artificial Intelligence...",
-  "document_id": "12345"
-}
+**Example Request:**
+```sh
+curl "http://127.0.0.1:5000/api/customers/filter?min_age=25&max_age=40&limit=5"
 ```
 
-### 3. JSON Data Queries (Bonus)
+### 3. Analyze Customers
+**Endpoint:** `GET /api/customers/analyze`
+**Query Parameters:**
+- `question`: The question to analyze customer data
+
+**Example Request:**
+```sh
+curl "http://127.0.0.1:5000/api/customers/analyze?question=What is the most common membership type?"
 ```
-GET /api/json-query?document_id=67890&operation=max&field=price
+
+### 4. Get Customer by ID
+**Endpoint:** `GET /api/customers/<customer_id>`
+**Path Parameter:**
+- `customer_id`: The ID of the customer
+
+**Example Request:**
+```sh
+curl "http://127.0.0.1:5000/api/customers/123"
 ```
-**Response:**
-```json
-{
-  "max_value": 5000
-}
+
+## Running the Application
+To start the Flask server, run:
+```sh
+python rag.py
 ```
+
+The server will be available at `http://127.0.0.1:5000`.
 
 ## Deployment
-The application is deployed on **[Your Cloud Provider]** and accessible at:
-```
-https://your-deployed-url.com
-```
+You can deploy this application to a cloud platform like AWS, GCP, Azure, Render, or Railway.
 
-### Local Setup
-#### Prerequisites
-- Python 3.9+
-- Weaviate running locally or on a cloud instance
-- Required Python packages in `requirements.txt`
-
-#### Installation
-```
-git clone https://github.com/yourrepo/rag-system.git
-cd rag-system
-pip install -r requirements.txt
-```
-
-#### Running the Server
-```
-python app.py
-```
-
-## Future Enhancements
-- Implement fine-tuning for better query responses.
-- Enhance JSON query capabilities.
-- Improve indexing strategy for more efficient retrieval.
-
-## Author
-[Your Name]
-
----
-Thank you for reviewing this project. Feel free to reach out for any clarifications!
+## License
+This project is licensed under the MIT License.
